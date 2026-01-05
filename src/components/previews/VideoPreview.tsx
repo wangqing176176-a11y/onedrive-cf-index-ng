@@ -134,7 +134,7 @@ const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
           <DownloadButton
             onClickCallback={() => window.open(videoUrl)}
             btnColor="blue"
-            btnText={'Download'}
+            btnText={'下载'}
             btnIcon="file-download"
           />
           <DownloadButton
@@ -143,13 +143,13 @@ const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
               toast.success('Copied direct link to clipboard.')
             }}
             btnColor="pink"
-            btnText={'Copy direct link'}
+            btnText={'复制直链'}
             btnIcon="copy"
           />
           <DownloadButton
             onClickCallback={() => setMenuOpen(true)}
             btnColor="teal"
-            btnText={'Customise link'}
+            btnText={'自定义链接'}
             btnIcon="pen"
           />
 
