@@ -75,7 +75,7 @@ const DownloadButtonGroup = () => {
         <DownloadButton
           onClickCallback={() => window.open(`/api/raw?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`)}
           btnColor="blue"
-          btnText={'Download'}
+          btnText={'下载'}
           btnIcon="file-download"
           btnTitle={'Download the file directly through OneDrive'}
         />
@@ -92,7 +92,7 @@ const DownloadButtonGroup = () => {
         <DownloadButton
           onClickCallback={() => setMenuOpen(true)}
           btnColor="teal"
-          btnText={'Customise link'}
+          btnText={'自定义链接'}
           btnIcon="pen"
         />
       </div>
