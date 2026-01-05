@@ -57,13 +57,13 @@ const FolderListLayout = ({
           {'文件名'}
         </div>
         <div className="col-span-3 hidden text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 md:block">
-          {'最后修改时间'}
+          {'上传时间'}
         </div>
         <div className="hidden text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 md:block">
           {'大小'}
         </div>
         <div className="hidden text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 md:block">
-          {'文件下载操作'}
+          {'操作'}
         </div>
         <div className="hidden text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 md:block">
           <div className="hidden p-1.5 text-gray-700 dark:text-gray-400 md:flex">
