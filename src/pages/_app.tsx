@@ -1,4 +1,4 @@
-import AccessGate from '../src/components/AccessGate'
+import AccessGate from '../components/AccessGate'
 
 import '@fortawesome/fontawesome-svg-core/styles.css'
 
