@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
-const PASSWORD = 'wang176176' // ← 改密码改这里
-const AGREEMENT_URL = 'https://qinghub.top/about/' // ← 协议/说明链接（你的博客关于页）
+const PASSWORD = 'wang176176'
+const AGREEMENT_URL = 'https://qinghub.top/about/'
 
 export default function AccessGate() {
   const router = useRouter()
@@ -12,8 +12,8 @@ export default function AccessGate() {
   const [showPwd, setShowPwd] = useState(false)
   const [err, setErr] = useState(false)
   const [agree, setAgree] = useState(false)
+  const [shakeKey, setShakeKey] = useState(0)
 
-  // ✅ 只在首页弹窗（不影响任何子页面）
   const isHome = useMemo(() => router.pathname === '/', [router.pathname])
 
   useEffect(() => {
@@ -22,7 +22,6 @@ export default function AccessGate() {
       return
     }
 
-    // 每次进入首页都弹（不记忆）
     setPwd('')
     setErr(false)
     setShowPwd(false)
@@ -37,18 +36,26 @@ export default function AccessGate() {
   }, [isHome])
 
   function cancel() {
-    // 取消访问：跳到你之前的拒绝页（如果你用的是 /denied 就保留）
     window.location.href = 'https://qinghub.top'
   }
 
+  function shake() {
+    // 通过 key 触发重新挂载动画 class（可靠）
+    setShakeKey(k => k + 1)
+  }
+
   function ok() {
-    if (!agree) return
+    if (!agree) {
+      shake()
+      return
+    }
     if (pwd.trim() === PASSWORD) {
       setErr(false)
       setOpen(false)
       document.documentElement.style.overflow = ''
     } else {
       setErr(true)
+      shake()
     }
   }
 
@@ -70,27 +77,24 @@ export default function AccessGate() {
   return (
     <>
       <div className="wq-mask" role="dialog" aria-modal="true" aria-label="访问验证">
-        <div className="wq-card">
+        <div className={`wq-card ${shakeKey ? 'wq-shake' : ''}`} key={shakeKey}>
           <div className="wq-head">
             <div className="wq-icon">🔒</div>
             <div className="wq-headtext">
               <div className="wq-title">访问验证</div>
-              <div className="wq-sub">
-                本页面内容受保护。请输入密码并确认后继续访问。
-              </div>
+              <div className="wq-sub">本页面内容受保护。请输入密码并确认后继续访问。</div>
             </div>
           </div>
 
           <div className="wq-body">
             <div className="wq-notice">
               <p>
-                您即将访问 <strong>WangQing&apos;s OneDrive</strong> 文件站点，
-                站内包含文件、视频等资源。
+                您即将访问 <strong>WangQing&apos;s OneDrive</strong> 文件存储站点，站内包含文件、视频等资源。
               </p>
               <p className="muted">
                 访问与下载仅供学习与参考。继续访问前，请先阅读并理解本站的
                 <a href={AGREEMENT_URL} target="_blank" rel="noopener noreferrer">
-                  《说明与约定（用户使用协议）》
+                  《关于》页面
                 </a>
                 。
               </p>
@@ -100,11 +104,9 @@ export default function AccessGate() {
               <input
                 type="checkbox"
                 checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
+                onChange={e => setAgree(e.target.checked)}
               />
-              <span>
-                我已阅读并理解上述《说明与约定》，并自愿继续访问
-              </span>
+              <span>我已阅读并理解上述《关于》，并自愿继续访问</span>
             </label>
 
             <div className="wq-inputwrap">
@@ -113,7 +115,7 @@ export default function AccessGate() {
                 type={showPwd ? 'text' : 'password'}
                 placeholder="请输入访问密码"
                 value={pwd}
-                onChange={(e) => {
+                onChange={e => {
                   setPwd(e.target.value)
                   setErr(false)
                 }}
@@ -122,7 +124,7 @@ export default function AccessGate() {
               <button
                 className="wq-eye"
                 type="button"
-                onClick={() => setShowPwd((v) => !v)}
+                onClick={() => setShowPwd(v => !v)}
                 aria-label={showPwd ? '隐藏密码' : '显示密码'}
                 title={showPwd ? '隐藏密码' : '显示密码'}
               >
@@ -152,6 +154,7 @@ export default function AccessGate() {
       </div>
 
       <style jsx>{`
+        /* ===================== 颜色变量（默认浅色） ===================== */
         :global(html) {
           --mask: rgba(0, 0, 0, 0.45);
           --card: rgba(255, 255, 255, 0.86);
@@ -165,9 +168,14 @@ export default function AccessGate() {
           --btnText: rgba(17, 24, 39, 0.92);
           --primaryBg: #111827;
           --primaryText: #fff;
+          --cardHeadBg: rgba(255, 255, 255, 0.16);
+          --agreeBg: rgba(255, 255, 255, 0.10);
+          --inputBg: rgba(255, 255, 255, 0.55);
         }
 
-        :global(html.dark) {
+        /* ===================== 深色模式：三种情况都兼容 ===================== */
+        :global(html.dark),
+        :global(body.dark) {
           --mask: rgba(0, 0, 0, 0.62);
           --card: rgba(24, 24, 27, 0.82);
           --border: rgba(255, 255, 255, 0.10);
@@ -180,8 +188,47 @@ export default function AccessGate() {
           --btnText: rgba(255, 255, 255, 0.92);
           --primaryBg: rgba(255, 255, 255, 0.92);
           --primaryText: rgba(0, 0, 0, 0.88);
+          --cardHeadBg: rgba(255, 255, 255, 0.04);
+          --agreeBg: rgba(255, 255, 255, 0.05);
+          --inputBg: rgba(255, 255, 255, 0.06);
         }
 
+        /* 兼容：如果项目没加 .dark，但系统是深色 */
+        @media (prefers-color-scheme: dark) {
+          :global(html:not(.light):not(.dark)),
+          :global(body:not(.light):not(.dark)) {
+            --mask: rgba(0, 0, 0, 0.62);
+            --card: rgba(24, 24, 27, 0.82);
+            --border: rgba(255, 255, 255, 0.10);
+            --text: rgba(255, 255, 255, 0.92);
+            --muted: rgba(255, 255, 255, 0.66);
+            --shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+            --focus: rgba(147, 197, 253, 0.12);
+            --link: #7aa2ff;
+            --btn: rgba(255, 255, 255, 0.08);
+            --btnText: rgba(255, 255, 255, 0.92);
+            --primaryBg: rgba(255, 255, 255, 0.92);
+            --primaryText: rgba(0, 0, 0, 0.88);
+            --cardHeadBg: rgba(255, 255, 255, 0.04);
+            --agreeBg: rgba(255, 255, 255, 0.05);
+            --inputBg: rgba(255, 255, 255, 0.06);
+          }
+        }
+
+        /* ===================== 轻微震动 ===================== */
+        @keyframes wq-shake {
+          0% { transform: translateX(0); }
+          20% { transform: translateX(-5px); }
+          40% { transform: translateX(5px); }
+          60% { transform: translateX(-4px); }
+          80% { transform: translateX(4px); }
+          100% { transform: translateX(0); }
+        }
+        .wq-shake {
+          animation: wq-shake .28s ease;
+        }
+
+        /* ===================== 布局样式（保持你原 UI） ===================== */
         .wq-mask {
           position: fixed;
           inset: 0;
@@ -210,10 +257,7 @@ export default function AccessGate() {
           align-items: center;
           padding: 18px 18px 12px;
           border-bottom: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.16);
-        }
-        :global(html.dark) .wq-head {
-          background: rgba(255, 255, 255, 0.04);
+          background: var(--cardHeadBg);
         }
 
         .wq-icon {
@@ -227,7 +271,8 @@ export default function AccessGate() {
           font-size: 18px;
           flex: 0 0 auto;
         }
-        :global(html.dark) .wq-icon {
+        :global(html.dark) .wq-icon,
+        :global(body.dark) .wq-icon {
           background: rgba(255, 255, 255, 0.08);
         }
 
@@ -250,13 +295,8 @@ export default function AccessGate() {
           font-size: 14px;
         }
 
-        .wq-notice p {
-          margin: 8px 0;
-        }
-        .muted {
-          color: var(--muted);
-          font-size: 13px;
-        }
+        .wq-notice p { margin: 8px 0; }
+        .muted { color: var(--muted); font-size: 13px; }
 
         .wq-notice a {
           color: var(--link);
@@ -264,9 +304,7 @@ export default function AccessGate() {
           text-decoration: none;
           margin: 0 4px;
         }
-        .wq-notice a:hover {
-          text-decoration: underline;
-        }
+        .wq-notice a:hover { text-decoration: underline; }
 
         .wq-agree {
           display: flex;
@@ -276,12 +314,10 @@ export default function AccessGate() {
           padding: 10px 12px;
           border: 1px solid var(--border);
           border-radius: 14px;
-          background: rgba(255, 255, 255, 0.10);
+          background: var(--agreeBg);
           user-select: none;
         }
-        :global(html.dark) .wq-agree {
-          background: rgba(255, 255, 255, 0.05);
-        }
+
         .wq-agree input {
           margin-top: 3px;
           width: 16px;
@@ -305,14 +341,12 @@ export default function AccessGate() {
           padding: 12px 44px 12px 12px;
           border-radius: 14px;
           border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.55);
+          background: var(--inputBg);
           color: var(--text);
           outline: none;
           font-size: 14px;
         }
-        :global(html.dark) .wq-input {
-          background: rgba(255, 255, 255, 0.06);
-        }
+
         .wq-input:focus {
           border-color: rgba(37, 99, 235, 0.35);
           box-shadow: 0 0 0 4px var(--focus);
@@ -347,7 +381,8 @@ export default function AccessGate() {
           border-top: 1px solid var(--border);
           background: rgba(255, 255, 255, 0.18);
         }
-        :global(html.dark) .wq-actions {
+        :global(html.dark) .wq-actions,
+        :global(body.dark) .wq-actions {
           background: rgba(255, 255, 255, 0.03);
         }
 
@@ -377,15 +412,9 @@ export default function AccessGate() {
         }
 
         @media (max-width: 520px) {
-          .wq-actions {
-            flex-direction: column;
-          }
-          .wq-btn {
-            width: 100%;
-          }
-          .wq-card {
-            width: min(720px, 100%);
-          }
+          .wq-actions { flex-direction: column; }
+          .wq-btn { width: 100%; }
+          .wq-card { width: min(720px, 100%); }
         }
       `}</style>
     </>
