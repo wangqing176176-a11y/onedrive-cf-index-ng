@@ -12,7 +12,9 @@ export default function AccessGate() {
   const [showPwd, setShowPwd] = useState(false)
   const [err, setErr] = useState(false)
   const [agree, setAgree] = useState(false)
-  const [shakeKey, setShakeKey] = useState(0)
+
+  // ✅ 震动状态：用 class 反复触发（最稳）
+  const [shakeOn, setShakeOn] = useState(false)
 
   const isHome = useMemo(() => router.pathname === '/', [router.pathname])
 
@@ -26,6 +28,7 @@ export default function AccessGate() {
     setErr(false)
     setShowPwd(false)
     setAgree(false)
+    setShakeOn(false)
     setOpen(true)
 
     const prev = document.documentElement.style.overflow
@@ -40,8 +43,12 @@ export default function AccessGate() {
   }
 
   function shake() {
-    // 通过 key 触发重新挂载动画 class（可靠）
-    setShakeKey(k => k + 1)
+    // ✅ 每次都能重播动画
+    setShakeOn(false)
+    requestAnimationFrame(() => {
+      setShakeOn(true)
+      window.setTimeout(() => setShakeOn(false), 320)
+    })
   }
 
   function ok() {
@@ -76,8 +83,21 @@ export default function AccessGate() {
 
   return (
     <>
-      <div className="wq-mask" role="dialog" aria-modal="true" aria-label="访问验证">
-        <div className={`wq-card ${shakeKey ? 'wq-shake' : ''}`} key={shakeKey}>
+      <div
+        className="wq-mask"
+        role="dialog"
+        aria-modal="true"
+        aria-label="访问验证"
+        // ✅ 未勾选时，点遮罩空白也抖一下（桌面端）
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget && !agree) shake()
+        }}
+        // ✅ 未勾选时，点遮罩空白也抖一下（移动端/iOS）
+        onTouchStart={(e) => {
+          if (e.target === e.currentTarget && !agree) shake()
+        }}
+      >
+        <div className={`wq-card ${shakeOn ? 'wq-shake' : ''}`}>
           <div className="wq-head">
             <div className="wq-icon">🔒</div>
             <div className="wq-headtext">
@@ -101,11 +121,7 @@ export default function AccessGate() {
             </div>
 
             <label className="wq-agree">
-              <input
-                type="checkbox"
-                checked={agree}
-                onChange={e => setAgree(e.target.checked)}
-              />
+              <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} />
               <span>我已阅读并理解上述《关于》，并自愿继续访问</span>
             </label>
 
@@ -200,7 +216,7 @@ export default function AccessGate() {
             --mask: rgba(0, 0, 0, 0.62);
             --card: rgba(24, 24, 27, 0.82);
             --border: rgba(255, 255, 255, 0.10);
-            --text: rgba(255, 255, 255, 0.92);
+            --text: rgba(255,  255, 255, 0.92);
             --muted: rgba(255, 255, 255, 0.66);
             --shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
             --focus: rgba(147, 197, 253, 0.12);
@@ -215,7 +231,7 @@ export default function AccessGate() {
           }
         }
 
-        /* ===================== 轻微震动 ===================== */
+        /* ===================== 轻微震动（一定会生效） ===================== */
         @keyframes wq-shake {
           0% { transform: translateX(0); }
           20% { transform: translateX(-5px); }
