@@ -1,3 +1,5 @@
+import TopNoticeBar from '../components/TopNoticeBar'
+
 import AccessGate from '../components/AccessGate'
 
 import '@fortawesome/fontawesome-svg-core/styles.css'
@@ -125,6 +127,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
       <AccessGate />
+      <TopNoticeBar />
       <Component {...pageProps} />
     </>
   )
