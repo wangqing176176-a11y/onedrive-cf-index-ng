@@ -4,6 +4,9 @@ import { useRouter } from 'next/router'
 const PASSWORD = 'wang176176'
 const AGREEMENT_URL = 'https://qinghub.top/about/'
 
+// ✅ 会话内不重复弹（关闭标签页才重新弹）
+const SESSION_KEY = 'wq_onedrive_gate_authed_v1'
+
 export default function AccessGate() {
   const router = useRouter()
 
@@ -13,13 +16,19 @@ export default function AccessGate() {
   const [err, setErr] = useState(false)
   const [agree, setAgree] = useState(false)
 
-  // ✅ 震动状态：用 class 反复触发（最稳）
+  // ✅ 震动状态（最稳）
   const [shakeOn, setShakeOn] = useState(false)
 
   const isHome = useMemo(() => router.pathname === '/', [router.pathname])
 
   useEffect(() => {
     if (!isHome) {
+      setOpen(false)
+      return
+    }
+
+    // ✅ 会话内已验证：不再弹
+    if (typeof window !== 'undefined' && sessionStorage.getItem(SESSION_KEY) === '1') {
       setOpen(false)
       return
     }
@@ -43,11 +52,10 @@ export default function AccessGate() {
   }
 
   function shake() {
-    // ✅ 每次都能重播动画
     setShakeOn(false)
     requestAnimationFrame(() => {
       setShakeOn(true)
-      window.setTimeout(() => setShakeOn(false), 320)
+      window.setTimeout(() => setShakeOn(false), 260)
     })
   }
 
@@ -57,6 +65,11 @@ export default function AccessGate() {
       return
     }
     if (pwd.trim() === PASSWORD) {
+      // ✅ 写入会话：本标签页本次会话内不再弹
+      try {
+        sessionStorage.setItem(SESSION_KEY, '1')
+      } catch (e) {}
+
       setErr(false)
       setOpen(false)
       document.documentElement.style.overflow = ''
@@ -216,7 +229,7 @@ export default function AccessGate() {
             --mask: rgba(0, 0, 0, 0.62);
             --card: rgba(24, 24, 27, 0.82);
             --border: rgba(255, 255, 255, 0.10);
-            --text: rgba(255,  255, 255, 0.92);
+            --text: rgba(255, 255, 255, 0.92);
             --muted: rgba(255, 255, 255, 0.66);
             --shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
             --focus: rgba(147, 197, 253, 0.12);
@@ -231,17 +244,16 @@ export default function AccessGate() {
           }
         }
 
-        /* ===================== 轻微震动（一定会生效） ===================== */
+        /* ===================== 轻微震动（更弱、更克制） ===================== */
         @keyframes wq-shake {
           0% { transform: translateX(0); }
-          20% { transform: translateX(-5px); }
-          40% { transform: translateX(5px); }
-          60% { transform: translateX(-4px); }
-          80% { transform: translateX(4px); }
+          25% { transform: translateX(-3px); }
+          50% { transform: translateX(3px); }
+          75% { transform: translateX(-2px); }
           100% { transform: translateX(0); }
         }
         .wq-shake {
-          animation: wq-shake .28s ease;
+          animation: wq-shake .22s ease;
         }
 
         /* ===================== 布局样式（保持你原 UI） ===================== */
