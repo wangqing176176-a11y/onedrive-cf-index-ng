@@ -40,12 +40,17 @@ export default function TopNoticeBar() {
   return (
     <div className="wq-topbar" role="status" aria-live="polite">
       <div className={`wq-topbar-inner ${animateIn ? 'in' : ''} ${closing ? 'closing' : ''}`}>
+        {/* ✅ 桌面端：正常显示；移动端：跑马灯滚动 */}
         <div className="wq-topbar-text">
-          <strong>提示：</strong>
-          本站部署于 Cloudflare，部分网络环境可能出现404加载失败或下载异常；若遇问题，请刷新页面后重试。
-          <a className="wq-topbar-link" href="https://qinghub.top/about/" target="_blank" rel="noopener noreferrer">
-            关于 ↗
-          </a>
+          <div className="wq-marquee" aria-hidden="false">
+            <span className="wq-marquee-inner">
+              <strong>📣 提示：</strong>
+              本站部署于 Cloudflare，部分网络环境可能出现404加载失败或下载异常；若遇问题，请刷新页面后重试。
+              <a className="wq-topbar-link" href="https://qinghub.top/about/" target="_blank" rel="noopener noreferrer">
+                关于 ↗
+              </a>
+            </span>
+          </div>
         </div>
 
         <button className="wq-topbar-close" type="button" onClick={close} aria-label="关闭提示" title="关闭提示">
@@ -65,6 +70,7 @@ export default function TopNoticeBar() {
         }
 
         .wq-topbar-inner {
+          position: relative; /* ✅ 让 X 的 absolute 有定位基准 */
           height: 40px;
           max-width: 1400px;
           margin: 0 auto;
@@ -82,6 +88,10 @@ export default function TopNoticeBar() {
         }
 
         /* 出现：淡入 */
+        .wq-topbar-inner.in compiler {
+          opacity: 1;
+          transform: translateY(0);
+        }
         .wq-topbar-inner.in {
           opacity: 1;
           transform: translateY(0);
@@ -93,6 +103,7 @@ export default function TopNoticeBar() {
           transform: translateY(-6px);
         }
 
+        /* 文本容器（桌面端：省略号） */
         .wq-topbar-text {
           font-size: 13px;
           line-height: 40px;
@@ -101,6 +112,7 @@ export default function TopNoticeBar() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          width: 100%;
         }
 
         .wq-topbar-text strong {
@@ -120,6 +132,8 @@ export default function TopNoticeBar() {
         .wq-topbar-close {
           position: absolute;
           right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
           width: 28px;
           height: 28px;
           border-radius: 10px;
@@ -132,24 +146,58 @@ export default function TopNoticeBar() {
           transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
         }
         .wq-topbar-close:hover {
-          transform: scale(1.03);
+          transform: translateY(-50%) scale(1.03);
           background: rgba(255, 255, 255, 0.1);
         }
 
-        /* 手机端：允许换行，避免挤在一行看不清 */
+        /* ====== 跑马灯（默认不动：桌面端看不到动画） ====== */
+        .wq-marquee {
+          overflow: hidden;
+          white-space: nowrap;
+          width: 100%;
+        }
+
+        .wq-marquee-inner {
+          display: inline-block;
+          white-space: nowrap;
+        }
+
+        /* ✅ 手机端：启用滚动播放（marquee） */
         @media (max-width: 520px) {
           .wq-topbar {
-            height: auto;
+            height: 40px; /* 保持一条细黑条，不换行 */
           }
           .wq-topbar-inner {
-            height: auto;
-            padding: 8px 12px;
+            height: 40px;
+            padding: 0 12px;
           }
+
+          /* 手机端不需要省略号，改成滚动 */
           .wq-topbar-text {
-            line-height: 1.35;
             font-size: 12.5px;
-            padding: 0 36px 0 0;
-            white-space: normal;
+            line-height: 40px;
+            padding: 0 44px 0 10px; /* 右边给 X 留更大空间 */
+            text-align: left;
+            text-overflow: clip;
+          }
+
+          .wq-marquee-inner {
+            padding-left: 100%;
+            animation: wqMarquee 14s linear infinite;
+            will-change: transform;
+          }
+
+          @keyframes wqMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+          }
+        }
+
+        /* ✅ 无动画偏好：禁用滚动 */
+        @media (prefers-reduced-motion: reduce) {
+          .wq-marquee-inner {
+            animation: none !important;
+            padding-left: 0 !important;
           }
         }
       `}</style>
