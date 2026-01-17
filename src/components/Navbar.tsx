@@ -84,7 +84,7 @@ const Navbar = () => {
             className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
           >
             <FontAwesomeIcon icon="book" />
-            <span className="hidden text-sm font-medium md:inline-block">{'Blog'}</span>
+            <span className="hidden text-sm font-medium md:inline-block">{'我的博客'}</span>
           </a>
 
           {/* ③ 关于页面 */}
@@ -95,7 +95,7 @@ const Navbar = () => {
             className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
           >
             <FontAwesomeIcon icon="external-link-alt" />
-            <span className="hidden text-sm font-medium md:inline-block">{'About'}</span>
+            <span className="hidden text-sm font-medium md:inline-block">{'关于页面'}</span>
           </a>
 
           {/* ④ GitHub（从 siteConfig.links 里单独提出来放这里） */}
