@@ -7,7 +7,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
 import siteConfig from '../../config/site.config'
 import SearchModal from './SearchModal'
@@ -53,6 +53,14 @@ const Navbar = () => {
     }, 1000)
   }
 
+  // ✅ 只做“展示顺序”处理：GitHub 单独提到固定位置，其余 link 按原顺序
+  const { githubLink, otherLinks } = useMemo(() => {
+    const links = Array.isArray(siteConfig.links) ? siteConfig.links : []
+    const gh = links.find(l => (l?.name || '').toLowerCase() === 'github') || null
+    const others = links.filter(l => (l?.name || '').toLowerCase() !== 'github')
+    return { githubLink: gh, otherLinks: others }
+  }, [])
+
   return (
     <div className="sticky top-0 z-[100] border-b border-gray-900/10 bg-white bg-opacity-80 backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900">
       <Toaster />
@@ -60,12 +68,71 @@ const Navbar = () => {
       <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen} />
 
       <div className="mx-auto flex w-full items-center justify-between space-x-4 px-4 py-1">
+        {/* ① 主页（OneDrive 主页） */}
         <Link href="/" passHref className="flex items-center space-x-2 py-2 hover:opacity-80 dark:text-white md:p-2">
           <Image src={siteConfig.icon} alt="icon" width="25" height="25" priority />
           <span className="hidden font-bold sm:block">{siteConfig.title}</span>
         </Link>
 
+        {/* 右侧导航区域 */}
         <div className="flex flex-1 items-center space-x-4 text-gray-700 md:flex-initial">
+          {/* ② 我的博客站点 */}
+          <a
+            href="https://qinghub.top"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+          >
+            <FontAwesomeIcon icon="book" />
+            <span className="hidden text-sm font-medium md:inline-block">{'Blog'}</span>
+          </a>
+
+          {/* ③ 关于页面 */}
+          <a
+            href="https://qinghub.top/about/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+          >
+            <FontAwesomeIcon icon="external-link-alt" />
+            <span className="hidden text-sm font-medium md:inline-block">{'About'}</span>
+          </a>
+
+          {/* ④ GitHub（从 siteConfig.links 里单独提出来放这里） */}
+          {githubLink && (
+            <a
+              key={githubLink.name}
+              href={githubLink.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+            >
+              <FontAwesomeIcon icon={['fab', githubLink.name.toLowerCase() as IconName]} />
+              <span className="hidden text-sm font-medium md:inline-block">{githubLink.name}</span>
+            </a>
+          )}
+
+          {/* ⑤ Email */}
+          {siteConfig.email && (
+            <a href={siteConfig.email} className="flex items-center space-x-2 hover:opacity-80 dark:text-white">
+              <FontAwesomeIcon icon={['far', 'envelope']} />
+              <span className="hidden text-sm font-medium md:inline-block">{'Email'}</span>
+            </a>
+          )}
+
+          {/* Logout（仅当 tokenPresent 才会出现，不影响你的目标顺序）
+              你如果希望它也在搜索框之前/之后，我可以再按你的习惯微调 */}
+          {tokenPresent && (
+            <button
+              className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="hidden text-sm font-medium md:inline-block">{'Logout'}</span>
+              <FontAwesomeIcon icon="sign-out-alt" />
+            </button>
+          )}
+
+          {/* ⑦ 搜索框（放到最右侧） */}
           <button
             className="flex flex-1 items-center justify-between rounded-lg bg-gray-100 px-2.5 py-1.5 hover:opacity-80 dark:bg-gray-800 dark:text-white md:w-48"
             onClick={openSearchBox}
@@ -82,37 +149,6 @@ const Navbar = () => {
               <div className="rounded-lg bg-gray-200 px-2 py-1 text-xs font-medium dark:bg-gray-700">K</div>
             </div>
           </button>
-
-          {siteConfig.links.length !== 0 &&
-            siteConfig.links.map((l: { name: string; link: string }) => (
-              <a
-                key={l.name}
-                href={l.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
-              >
-                <FontAwesomeIcon icon={['fab', l.name.toLowerCase() as IconName]} />
-                <span className="hidden text-sm font-medium md:inline-block">{l.name}</span>
-              </a>
-            ))}
-
-          {siteConfig.email && (
-            <a href={siteConfig.email} className="flex items-center space-x-2 hover:opacity-80 dark:text-white">
-              <FontAwesomeIcon icon={['far', 'envelope']} />
-              <span className="hidden text-sm font-medium md:inline-block">{'Email'}</span>
-            </a>
-          )}
-
-          {tokenPresent && (
-            <button
-              className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
-              onClick={() => setIsOpen(true)}
-            >
-              <span className="hidden text-sm font-medium md:inline-block">{'Logout'}</span>
-              <FontAwesomeIcon icon="sign-out-alt" />
-            </button>
-          )}
         </div>
       </div>
 
@@ -131,7 +167,6 @@ const Navbar = () => {
               <Dialog.Overlay className="fixed inset-0 bg-gray-50 dark:bg-gray-800" />
             </Transition.Child>
 
-            {/* This element is to trick the browser into centering the modal contents. */}
             <span className="inline-block h-screen align-middle" aria-hidden="true">
               &#8203;
             </span>
