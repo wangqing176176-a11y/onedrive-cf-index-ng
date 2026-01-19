@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
-const PASSWORD = 'wang176176'                            /*这里改访问密码*/
-const AGREEMENT_URL = 'https://qinghub.top/about/'       /*这里改关于按钮链接*/
+const PASSWORD = 'wang176176'                            /* 这里改 🔒 访问密码 🔒 */
+const AGREEMENT_URL = 'https://qinghub.top/about/'
 
 // ✅ 会话内不重复弹（关闭标签页才重新弹）
 const SESSION_KEY = 'wq_onedrive_gate_authed_v1'
@@ -373,15 +373,14 @@ export default function AccessGate() {
           color: var(--text);
           outline: none;
           font-size: 14px;
+        }
 
-          /* ✅ 仅 iOS：防止输入框聚焦自动放大（iPhone/iPad Safari） */
-          @supports (-webkit-touch-callout: none) {
-            input.wq-input,
-            input.wq-input[type="password"],
-            input.wq-input[type="text"] {
-              font-size: 16px !important;
-            }
-          }
+         /* ✅ 仅 iOS：防止输入框聚焦自动放大（iPhone/iPad Safari） */
+         @supports (-webkit-touch-callout: none) {
+           .wq-input{
+             font-size: 16px !important;
+           }
+         }
 
         .wq-input:focus {
           border-color: rgba(37, 99, 235, 0.35);
