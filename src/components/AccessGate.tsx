@@ -375,13 +375,13 @@ export default function AccessGate() {
           font-size: 14px;
 
           /* ✅ 仅 iOS：防止输入框聚焦自动放大（iPhone/iPad Safari） */
-        @supports (-webkit-touch-callout: none) {
-          input.wq-input,
-          input.wq-input[type="password"],
-          input.wq-input[type="text"] {
-            font-size: 16px !important;
+          @supports (-webkit-touch-callout: none) {
+            input.wq-input,
+            input.wq-input[type="password"],
+            input.wq-input[type="text"] {
+              font-size: 16px !important;
+            }
           }
-        }
 
         .wq-input:focus {
           border-color: rgba(37, 99, 235, 0.35);
