@@ -19,9 +19,14 @@ const Navbar = () => {
 
   const [tokenPresent, setTokenPresent] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const [searchOpen, setSearchOpen] = useState(false)
   const openSearchBox = () => setSearchOpen(true)
+  const openSearchFromMenu = () => {
+    setMobileMenuOpen(false)
+    setSearchOpen(true)
+  }
 
   useHotkeys(`${os === 'mac' ? 'meta' : 'ctrl'}+k`, e => {
     openSearchBox()
@@ -54,11 +59,10 @@ const Navbar = () => {
   }
 
   // ✅ 只做“展示顺序”处理：GitHub 单独提到固定位置，其余 link 按原顺序
-  const { githubLink, otherLinks } = useMemo(() => {
+  const { githubLink } = useMemo(() => {
     const links = Array.isArray(siteConfig.links) ? siteConfig.links : []
     const gh = links.find(l => (l?.name || '').toLowerCase() === 'github') || null
-    const others = links.filter(l => (l?.name || '').toLowerCase() !== 'github')
-    return { githubLink: gh, otherLinks: others }
+    return { githubLink: gh }
   }, [])
 
   return (
@@ -76,86 +80,221 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* 右侧导航区域 */}
-        <div className="flex flex-1 items-center space-x-4 text-gray-700 md:flex-initial">
-          {/* ② 我的博客站点 */}
-          <a
-            href="https://qinghub.top"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+        {/* 右侧导航区域：桌面端直出，小屏折叠到抽屉 */}
+        <div className="flex items-center">
+          {/* Mobile hamburger */}
+          <button
+            className="inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800 md:hidden"
+            aria-label="Open menu"
+            onClick={() => setMobileMenuOpen(true)}
           >
-            <FontAwesomeIcon icon="book" />
-            <span className="hidden text-sm font-medium md:inline-block">{'我的博客'}</span>
-          </a>
+            <FontAwesomeIcon icon="bars" />
+          </button>
 
-          {/* ③ 关于页面 */}
-          <a
-            href="https://qinghub.top/about/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
-          >
-            <FontAwesomeIcon icon="external-link-alt" />
-            <span className="hidden text-sm font-medium md:inline-block">{'关于页面'}</span>
-          </a>
-
-          {/* ④ GitHub（从 siteConfig.links 里单独提出来放这里） */}
-          {githubLink && (
+          {/* Desktop nav */}
+          <div className="hidden items-center space-x-4 text-gray-700 md:flex">
+            {/* ② 我的博客站点 */}
             <a
-              key={githubLink.name}
-              href={githubLink.link}
+              href="https://qinghub.top"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
             >
-              <FontAwesomeIcon icon={['fab', githubLink.name.toLowerCase() as IconName]} />
-              <span className="hidden text-sm font-medium md:inline-block">{githubLink.name}</span>
+              <FontAwesomeIcon icon="book" />
+              <span className="hidden text-sm font-medium lg:inline-block">{'我的博客'}</span>
             </a>
-          )}
 
-          {/* ⑤ Email */}
-          {siteConfig.email && (
-            <a href={siteConfig.email} className="flex items-center space-x-2 hover:opacity-80 dark:text-white">
-              <FontAwesomeIcon icon={['far', 'envelope']} />
-              <span className="hidden text-sm font-medium md:inline-block">{'Email'}</span>
-            </a>
-          )}
-
-          {/* Logout（仅当 tokenPresent 才会出现，不影响你的目标顺序）
-              你如果希望它也在搜索框之前/之后，我可以再按你的习惯微调 */}
-          {tokenPresent && (
-            <button
+            {/* ③ 关于页面 */}
+            <a
+              href="https://qinghub.top/about/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
-              onClick={() => setIsOpen(true)}
             >
-              <span className="hidden text-sm font-medium md:inline-block">{'Logout'}</span>
-              <FontAwesomeIcon icon="sign-out-alt" />
-            </button>
-          )}
+              <FontAwesomeIcon icon="external-link-alt" />
+              <span className="hidden text-sm font-medium lg:inline-block">{'关于页面'}</span>
+            </a>
 
-          {/* ⑦ 搜索框（放到最右侧） */}
-          <button
-            className="flex flex-1 items-center justify-between rounded-lg bg-gray-100 px-2.5 py-1.5 hover:opacity-80 dark:bg-gray-800 dark:text-white md:w-48"
-            onClick={openSearchBox}
-          >
-            <div className="flex items-center space-x-2">
-              <FontAwesomeIcon className="h-4 w-4" icon="search" />
-              <span className="truncate text-sm font-medium">{'Search ...'}</span>
-            </div>
+            {/* ④ GitHub（从 siteConfig.links 里单独提出来放这里） */}
+            {githubLink && (
+              <a
+                key={githubLink.name}
+                href={githubLink.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+              >
+                <FontAwesomeIcon icon={['fab', githubLink.name.toLowerCase() as IconName]} />
+                <span className="hidden text-sm font-medium lg:inline-block">{githubLink.name}</span>
+              </a>
+            )}
 
-            <div className="hidden items-center space-x-1 md:flex">
-              <div className="rounded-lg bg-gray-200 px-2 py-1 text-xs font-medium dark:bg-gray-700">
-                {os === 'mac' ? '⌘' : 'Ctrl'}
+            {/* ⑤ Email */}
+            {siteConfig.email && (
+              <a href={siteConfig.email} className="flex items-center space-x-2 hover:opacity-80 dark:text-white">
+                <FontAwesomeIcon icon={['far', 'envelope']} />
+                <span className="hidden text-sm font-medium lg:inline-block">{'Email'}</span>
+              </a>
+            )}
+
+            {/* Logout（仅当 tokenPresent 才会出现） */}
+            {tokenPresent && (
+              <button
+                className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="hidden text-sm font-medium lg:inline-block">{'Logout'}</span>
+                <FontAwesomeIcon icon="sign-out-alt" />
+              </button>
+            )}
+
+            {/* ⑦ 搜索框（桌面端） */}
+            <button
+              className="flex items-center justify-between rounded-lg bg-gray-100 px-2.5 py-1.5 hover:opacity-80 dark:bg-gray-800 dark:text-white md:w-48"
+              onClick={openSearchBox}
+            >
+              <div className="flex items-center space-x-2">
+                <FontAwesomeIcon className="h-4 w-4" icon="search" />
+                <span className="truncate text-sm font-medium">{'Search ...'}</span>
               </div>
-              <div className="rounded-lg bg-gray-200 px-2 py-1 text-xs font-medium dark:bg-gray-700">K</div>
-            </div>
-          </button>
+
+              <div className="hidden items-center space-x-1 lg:flex">
+                <div className="rounded-lg bg-gray-200 px-2 py-1 text-xs font-medium dark:bg-gray-700">
+                  {os === 'mac' ? '⌘' : 'Ctrl'}
+                </div>
+                <div className="rounded-lg bg-gray-200 px-2 py-1 text-xs font-medium dark:bg-gray-700">K</div>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Mobile drawer */}
+      <Transition appear show={mobileMenuOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-[150] overflow-hidden md:hidden"
+          open={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-150"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+            </Transition.Child>
+
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-150"
+              enterFrom="translate-x-full"
+              enterTo="translate-x-0"
+              leave="ease-in duration-100"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
+            >
+              <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl dark:bg-gray-900">
+                <div className="flex items-center justify-between border-b border-gray-900/10 px-4 py-3 dark:border-gray-500/30">
+                  <Dialog.Title className="text-sm font-semibold text-gray-900 dark:text-gray-100">{'Menu'}</Dialog.Title>
+                  <button
+                    className="inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800"
+                    aria-label="Close menu"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon="xmark" />
+                  </button>
+                </div>
+
+                <div className="space-y-1 p-3 text-gray-900 dark:text-gray-100">
+                  <button
+                    className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={openSearchFromMenu}
+                  >
+                    <FontAwesomeIcon icon="search" />
+                    <span className="text-sm font-medium">{'Search'}</span>
+                  </button>
+
+                  <a
+                    href="https://qinghub.top"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon="book" />
+                    <span className="text-sm font-medium">{'我的博客'}</span>
+                  </a>
+
+                  <a
+                    href="https://qinghub.top/about/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon="external-link-alt" />
+                    <span className="text-sm font-medium">{'关于页面'}</span>
+                  </a>
+
+                  {githubLink && (
+                    <a
+                      key={githubLink.name}
+                      href={githubLink.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FontAwesomeIcon icon={['fab', githubLink.name.toLowerCase() as IconName]} />
+                      <span className="text-sm font-medium">{githubLink.name}</span>
+                    </a>
+                  )}
+
+                  {siteConfig.email && (
+                    <a
+                      href={siteConfig.email}
+                      className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FontAwesomeIcon icon={['far', 'envelope']} />
+                      <span className="text-sm font-medium">{'Email'}</span>
+                    </a>
+                  )}
+
+                  {tokenPresent && (
+                    <button
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setIsOpen(true)
+                      }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <FontAwesomeIcon icon="sign-out-alt" />
+                        <span className="text-sm font-medium">{'Logout'}</span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" open={isOpen} onClose={() => setIsOpen(false)}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-[160] overflow-y-auto"
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        >
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
               as={Fragment}
