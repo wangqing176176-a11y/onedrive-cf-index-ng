@@ -70,8 +70,10 @@ const Navbar = () => {
       <div className="mx-auto flex w-full items-center justify-between space-x-4 px-4 py-1">
         {/* ① 主页（OneDrive 主页） */}
         <Link href="/" passHref className="flex items-center space-x-2 py-2 hover:opacity-80 dark:text-white md:p-2">
-          <Image src={siteConfig.icon} alt="icon" width={36} height={36} priority />
-          <span className="hidden font-bold sm:block">{siteConfig.title}</span>
+          <Image src={siteConfig.icon} alt="icon" width={48} height={48} priority />
+          <span className="hidden text-lg font-bold text-blue-600 dark:text-blue-400 sm:block md:text-xl">
+            {siteConfig.title}
+          </span>
         </Link>
 
         {/* 右侧导航区域 */}
