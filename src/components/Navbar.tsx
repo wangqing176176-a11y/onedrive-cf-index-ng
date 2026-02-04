@@ -71,11 +71,18 @@ const Navbar = () => {
 
       <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen} />
 
-      <div className="mx-auto flex w-full items-center justify-between space-x-4 px-4 py-1">
+      <div className="mx-auto flex w-full items-center justify-between space-x-3 px-4 py-0">
         {/* ① 主页（OneDrive 主页） */}
-        <Link href="/" passHref className="flex items-center space-x-2 py-2 hover:opacity-80 dark:text-white md:p-2">
-          <Image src={siteConfig.icon} alt="icon" width={48} height={48} priority />
-          <span className="hidden text-lg font-bold text-blue-600 dark:text-blue-400 sm:block md:text-xl">
+        <Link href="/" passHref className="flex items-center space-x-2 py-1 hover:opacity-80 dark:text-white">
+          <Image
+            src={siteConfig.icon}
+            alt="icon"
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10 md:h-11 md:w-11"
+          />
+          <span className="block max-w-[55vw] truncate text-base font-bold leading-tight text-blue-600 dark:text-blue-400 sm:max-w-none sm:text-lg md:text-xl">
             {siteConfig.title}
           </span>
         </Link>
@@ -84,7 +91,7 @@ const Navbar = () => {
         <div className="flex items-center">
           {/* Mobile hamburger */}
           <button
-            className="inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800 md:hidden"
+            className="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800 md:hidden"
             aria-label="Open menu"
             onClick={() => setMobileMenuOpen(true)}
           >
@@ -201,9 +208,9 @@ const Navbar = () => {
             >
               <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl dark:bg-gray-900">
                 <div className="flex items-center justify-between border-b border-gray-900/10 px-4 py-3 dark:border-gray-500/30">
-                  <Dialog.Title className="text-sm font-semibold text-gray-900 dark:text-gray-100">{'Menu'}</Dialog.Title>
+                  <Dialog.Title className="text-sm font-semibold text-gray-900 dark:text-gray-100">{'导航'}</Dialog.Title>
                   <button
-                    className="inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800"
+                    className="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-700 hover:bg-gray-100 hover:opacity-90 dark:text-gray-100 dark:hover:bg-gray-800"
                     aria-label="Close menu"
                     onClick={() => setMobileMenuOpen(false)}
                   >
